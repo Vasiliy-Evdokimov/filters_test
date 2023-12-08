@@ -20,9 +20,11 @@ using namespace cv;
 
 #define USE_CAM 1
 #define CAM_ADDR "rtsp://admin:1234qwer@192.168.1.63:554/streaming/channels/2"
-#define IMG_ADDR "test100.png"
+#define IMG_ADDR "test75.png"
 
 void add_img(std::vector<cv::Mat>& aImages, cv::Mat aImg, string aText) {
+	if (aImg.empty()) return;
+	//
 	cv::Mat aImgCpy = aImg.clone();
 	cv::putText(aImgCpy, aText, cv::Point(10, 30),
 		cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 0, 0));
@@ -32,8 +34,7 @@ void add_img(std::vector<cv::Mat>& aImages, cv::Mat aImg, string aText) {
 void process_img(Mat imgColor) {
 
 
-	if (USE_CAM)
-		imshow("source", imgColor);
+	//if (USE_CAM) imshow("source", imgColor);
 
 	if (!USE_CAM) {
 		//blur_example::run(imgColor);
@@ -44,6 +45,8 @@ void process_img(Mat imgColor) {
 	}
 
 	std::vector<cv::Mat> images;
+
+//	add_img(images, imgColor, "imgColor");
 
 	Mat im0;
 	cvtColor(imgColor, im0, cv::COLOR_BGR2GRAY);
@@ -56,30 +59,33 @@ void process_img(Mat imgColor) {
 //	add_img(images, im01, "erode");
 
 	Mat im1;
-	int gbk = 25;
+	int gbk = 2*12 + 1;
 	cv::GaussianBlur(im0, im1, Size(gbk, gbk), 0);
 	add_img(images, im1, "GaussianBlur");
 
 	//moprphology_example::run(im1);
 
 	Mat im2;
-	int mok = 25;
+	int mok = 2*12 + 1;
 	cv::morphologyEx(im1, im2, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(mok, mok)));
 	add_img(images, im2, "MORPH_OPEN");
 
 	//moprphology_example::run(im2);
 
 	Mat im3;
-	int mck = 9;
+	int mck = 2*4 + 1;
 	cv::morphologyEx(im2, im3, MORPH_CLOSE, getStructuringElement(MORPH_RECT, Size(mck, mck)));
 	add_img(images, im3, "MORPH_CLOSE");
 
 	//threshold_example::run(im3);
 
 	cv::Mat im5;
-	cv::threshold(im3, im5, 160, 255, cv::THRESH_BINARY_INV );
-	add_img(images, im5, "thresholdClose");
+	cv::threshold(im2, im5, 160, 255, cv::THRESH_BINARY_INV );
+	add_img(images, im5, "thresholdOpen");
 
+	cv::Mat im6;
+	cv::threshold(im3, im6, 160, 255, cv::THRESH_BINARY_INV );
+	add_img(images, im6, "thresholdClose");
 	//
 
 	const int ROW = 3;
